@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export function getStaticPaths () {
+  
+  return [
+    {
+      params: { id: 'aprendiendo-git'},
+      props: { title:"Aprendiendo git y github" }
+    }
+  ]
+}
+
+const { title } = Astro.props
+---
+
+<Layout title={`${title} - Libros Programacion`} >
+  <h1>{title}</h1>
+</Layout>
