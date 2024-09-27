@@ -1,20 +1,56 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import { SHOW_BUY_BUTTON } from 'astro:env/server'
 
-export function getStaticPaths () {
-  
-  return [
-    {
-      params: { id: 'aprendiendo-git'},
-      props: { title:"Aprendiendo git y github" }
-    }
-  ]
+
+export async function getStaticPaths () {
+  const books =  await getCollection('books') 
+
+  return books.map((book) => ({
+    params: { id: book.slug },
+    props: { book }
+  }))
 }
 
-const { title } = Astro.props
+const { book } = Astro.props
+const { data } = book
+const { Content } = await render(book)
 ---
 
-<Layout title={`${title} - Libros Programacion`} >
-  <h1>{title}</h1>
+<Layout title={`${data.title} - Libros Programacion`} >
+  <div class="flex gap-12">
+    <aside>
+      <a href="/" class="hover:underline opacity-70">Volver atras</a>
+      <img 
+        transition:name={`img-${book.slug}`} 
+        class="rounded w-72 h-auto" 
+        src={`/${data.img}`} 
+        alt={data.title} 
+      />
+      {
+        /* Importar logo de amazaon desde el repositorio del proyecto */
+        SHOW_BUY_BUTTON && (
+          <a
+            href={data.buy.spain}
+            title="Comprar libro"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-balance inline-flex gap-2 items-center bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black font-bold py-2 px-4 rounded-lg border border-yellow-500 transition duration-200 ease-in-out hover:scale-105 justify-center text-center"
+          >
+            Comprar en amazon Espana
+            /* Colocar logo de amazon */
+          </a>
+
+        )
+      }
+    </aside>
+
+    <main class="max-w-3xl">
+      <h1 class="text-4xl font-bold mb-4">{data.title}</h1>
+      <div class="prose prose-invert">
+        <Content />
+      </div>
+    </main>
+  </div>
 </Layout>
